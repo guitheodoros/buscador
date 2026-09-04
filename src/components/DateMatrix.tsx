@@ -26,7 +26,7 @@ export function DateMatrix({ matrix, selectedDep, selectedRet, onPick, onClose }
   const real = source === "amadeus";
 
   return (
-    <div className="panel matrix-panel">
+    <div className="matrix-panel">
       <div className="matrix-head">
         <h2>
           Datas flexíveis · mapa de calor

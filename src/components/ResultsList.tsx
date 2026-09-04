@@ -137,7 +137,7 @@ export function ResultsList({
   const hasPointsFares = results.some(usesPoints);
 
   return (
-    <div className="panel results-panel">
+    <div className="results-panel">
       <div className="results-head">
         <h2>Resultados</h2>
         {results.length > 0 && (

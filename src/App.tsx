@@ -30,6 +30,7 @@ export default function App() {
   const [baseQuery, setBaseQuery] = useState<SearchQuery | null>(null);
   const [matrix, setMatrix] = useState<Matrix | null>(null);
   const [monthMatrix, setMonthMatrix] = useState<MonthMatrix | null>(null);
+  const [searchCount, setSearchCount] = useState(0);
 
   useEffect(() => {
     checkAmadeusHealth().then(setAmadeusLive);
@@ -52,6 +53,7 @@ export default function App() {
   }
 
   async function runSearch(q: SearchQuery) {
+    setSearchCount((c) => c + 1);
     setLoading(true);
     setRawResults([]);
     setBaseQuery(q);
@@ -99,58 +101,68 @@ export default function App() {
     }
   }
 
+  const hasMatrix = Boolean(monthMatrix || matrix);
+
   return (
     <div className="app">
-      <div className="globe-layer">
-        <Globe results={results} cheapestId={cheapestId} />
+      <div className="globe-bg">
+        <Globe results={results} cheapestId={cheapestId} zoomKey={searchCount} />
       </div>
 
-      <header className="topbar">
-        <h1>✈︎ Buscador de Sonhos</h1>
-        <div className="mode-chips">
-          <span className={`data-mode ${amadeusLive ? "live" : "mock"}`}>
-            {amadeusLive ? "Amadeus ao vivo" : "Amadeus mock"}
-          </span>
-          <span className={`data-mode ${seatsLive ? "live" : "mock"}`}>
-            {seatsLive ? "seats.aero ao vivo" : "milhas mock"}
-          </span>
-          <span className={`data-mode ${duffelLive ? "live" : "mock"}`}>
-            {duffelLive ? "Duffel ao vivo" : "consolidador mock"}
-          </span>
+      <main className={`bento ${hasMatrix ? "has-matrix" : ""}`}>
+        <div className="bg-title" aria-hidden="true">
+          <span>Buscador</span>
+          <span>de Sonhos</span>
         </div>
-      </header>
 
-      <div className="sidebar left">
-        <SearchPanel onSearch={runSearch} loading={loading} />
-      </div>
+        <section className="tile tile-search">
+          <SearchPanel onSearch={runSearch} loading={loading} />
+        </section>
 
-      <div className="sidebar right">
-        <ResultsList
-          results={results}
-          cheapestId={cheapestId}
-          tookMs={tookMs}
-          loading={loading}
-          pointValue={pointValue}
-          onPointValueChange={setPointValue}
-        />
-      </div>
+        {monthMatrix ? (
+          <section className="tile tile-matrix">
+            <MonthCalendar
+              matrix={monthMatrix}
+              selectedDate={baseQuery?.departureDate}
+              onPick={pickDay}
+              onClose={() => setMonthMatrix(null)}
+            />
+          </section>
+        ) : matrix ? (
+          <section className="tile tile-matrix">
+            <DateMatrix
+              matrix={matrix}
+              selectedDep={baseQuery?.departureDate}
+              selectedRet={baseQuery?.returnDate}
+              onPick={pickDates}
+              onClose={() => setMatrix(null)}
+            />
+          </section>
+        ) : null}
 
-      {monthMatrix ? (
-        <MonthCalendar
-          matrix={monthMatrix}
-          selectedDate={baseQuery?.departureDate}
-          onPick={pickDay}
-          onClose={() => setMonthMatrix(null)}
-        />
-      ) : matrix ? (
-        <DateMatrix
-          matrix={matrix}
-          selectedDep={baseQuery?.departureDate}
-          selectedRet={baseQuery?.returnDate}
-          onPick={pickDates}
-          onClose={() => setMatrix(null)}
-        />
-      ) : null}
+        <section className="tile tile-results">
+          <ResultsList
+            results={results}
+            cheapestId={cheapestId}
+            tookMs={tookMs}
+            loading={loading}
+            pointValue={pointValue}
+            onPointValueChange={setPointValue}
+          />
+        </section>
+      </main>
+
+      <footer className="statusbar">
+        <span className={`data-mode ${amadeusLive ? "live" : "mock"}`}>
+          {amadeusLive ? "Amadeus ao vivo" : "Amadeus mock"}
+        </span>
+        <span className={`data-mode ${seatsLive ? "live" : "mock"}`}>
+          {seatsLive ? "seats.aero ao vivo" : "milhas mock"}
+        </span>
+        <span className={`data-mode ${duffelLive ? "live" : "mock"}`}>
+          {duffelLive ? "Duffel ao vivo" : "consolidador mock"}
+        </span>
+      </footer>
     </div>
   );
 }

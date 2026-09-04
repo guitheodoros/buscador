@@ -24,7 +24,7 @@ export function MonthCalendar({ matrix, selectedDate, onPick, onClose }: MonthCa
   const firstDow = new Date(Date.UTC(year, month, 1)).getUTCDay(); // 0-6
 
   return (
-    <div className="panel matrix-panel">
+    <div className="matrix-panel">
       <div className="matrix-head">
         <h2>
           {MONTHS[month]} {year}

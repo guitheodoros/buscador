@@ -20,6 +20,7 @@ export function SearchPanel({ onSearch, loading }: SearchPanelProps) {
   const [cabin, setCabin] = useState<SearchQuery["cabin"]>("ECONOMY");
   const [enabled, setEnabled] = useState<StrategyId[]>(DEFAULT_ENABLED);
   const [flexible, setFlexible] = useState(true);
+  const [methodsOpen, setMethodsOpen] = useState(false);
   const [mode, setMode] = useState<"dates" | "month">("dates");
   const [month, setMonth] = useState("2026-11");
   const [nights, setNights] = useState(14);
@@ -62,8 +63,8 @@ export function SearchPanel({ onSearch, loading }: SearchPanelProps) {
   }
 
   return (
-    <div className="panel search-panel">
-      <h2>Buscar passagem</h2>
+    <div className="search-panel">
+      <h2 className="section">Buscar passagem</h2>
 
       <div className="row">
         <AirportSelect label="Origem" value={origin} onChange={setOrigin} />
@@ -156,23 +157,38 @@ export function SearchPanel({ onSearch, loading }: SearchPanelProps) {
       )}
 
       <div className="strategies">
-        <div className="strategies-head">
-          <span>Metodos ({enabled.length}/{STRATEGIES.length})</span>
-          <button className="link" onClick={() => setEnabled(DEFAULT_ENABLED)}>
-            todos
-          </button>
-        </div>
-        {STRATEGIES.map((s) => (
-          <label key={s.id} className="strategy-toggle" title={s.description}>
-            <input
-              type="checkbox"
-              checked={enabled.includes(s.id)}
-              onChange={() => toggle(s.id)}
-            />
-            <span className="dot" style={{ background: s.color }} />
-            {s.label}
-          </label>
-        ))}
+        <button
+          className="strategies-head"
+          type="button"
+          onClick={() => setMethodsOpen((o) => !o)}
+          aria-expanded={methodsOpen}
+        >
+          <span>
+            Métodos <strong>{enabled.length}/{STRATEGIES.length}</strong>
+          </span>
+          <span className={`chevron ${methodsOpen ? "open" : ""}`}>⌄</span>
+        </button>
+
+        {methodsOpen && (
+          <div className="strategies-list">
+            <div className="strategies-actions">
+              <button className="link" onClick={() => setEnabled(DEFAULT_ENABLED)}>
+                selecionar todos
+              </button>
+            </div>
+            {STRATEGIES.map((s) => (
+              <label key={s.id} className="strategy-toggle" title={s.description}>
+                <input
+                  type="checkbox"
+                  checked={enabled.includes(s.id)}
+                  onChange={() => toggle(s.id)}
+                />
+                <span className="dot" style={{ background: s.color }} />
+                {s.label}
+              </label>
+            ))}
+          </div>
+        )}
       </div>
 
       <button className="primary" onClick={submit} disabled={loading || enabled.length === 0}>
