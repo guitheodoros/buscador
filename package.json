@@ -1,0 +1,33 @@
+{
+  "name": "passagens-aereas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Ferramenta WebGL para encontrar passagens aereas mais baratas via multiplas estrategias",
+  "scripts": {
+    "dev": "concurrently -n web,api -c blue,green \"vite\" \"node server/index.js\"",
+    "web": "vite",
+    "server": "node server/index.js",
+    "build": "tsc -b && vite build",
+    "start": "node server/index.js",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.114.0",
+    "@react-three/fiber": "^8.17.10",
+    "concurrently": "^9.2.4",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.169.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@types/three": "^0.169.0",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}
