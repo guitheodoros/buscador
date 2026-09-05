@@ -29,12 +29,16 @@ export interface SearchQuery {
   flexible?: boolean;
   /** Raio da matriz de datas (dias para cada lado). */
   flexDays?: number;
-  /** Modo de busca: datas exatas ou o mes inteiro. */
-  mode?: "dates" | "month";
+  /** Modo de busca: datas exatas, mes inteiro ou numero do voo. */
+  mode?: "dates" | "month" | "flight";
   /** Mes escolhido no modo "month" (formato "YYYY-MM"). */
   month?: string;
   /** Duracao em noites no modo "month" (ida e volta); ausente = so ida. */
   nights?: number;
+  /** Modo "flight": codigo IATA da companhia (ex: "LA", "TP"). */
+  airline?: string;
+  /** Modo "flight": numero do voo sem o prefixo da cia (ex: "8080"). */
+  flightNumber?: string;
 }
 
 export interface FareSegment {

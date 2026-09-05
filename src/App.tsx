@@ -105,16 +105,16 @@ export default function App() {
 
   return (
     <div className="app">
+      <div className="bg-title" aria-hidden="true">
+        <span>Buscador</span>
+        <span>de Sonhos</span>
+      </div>
+
       <div className="globe-bg">
         <Globe results={results} cheapestId={cheapestId} zoomKey={searchCount} />
       </div>
 
-      <main className={`bento ${hasMatrix ? "has-matrix" : ""}`}>
-        <div className="bg-title" aria-hidden="true">
-          <span>Buscador</span>
-          <span>de Sonhos</span>
-        </div>
-
+      <main className={`bento ${hasMatrix ? "has-matrix" : ""} ${baseQuery ? "has-searched" : ""}`}>
         <section className="tile tile-search">
           <SearchPanel onSearch={runSearch} loading={loading} />
         </section>

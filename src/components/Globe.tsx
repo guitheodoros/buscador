@@ -71,7 +71,7 @@ function CountryFill() {
 /** Fronteiras dos paises (linhas) sobre a esfera. */
 function Borders() {
   const lineObjs = useMemo(() => {
-    const mat = new THREE.LineBasicMaterial({ color: "#5a7a9e", transparent: true, opacity: 0.45 });
+    const mat = new THREE.LineBasicMaterial({ color: "#1d1d1f", transparent: true, opacity: 0.5 });
     return (worldBorders as [number, number][][]).map((ring) => {
       const pts = ring.map(([lon, lat]) => latLonToVector3(lat, lon, RADIUS + 0.014));
       return new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat);
@@ -97,11 +97,11 @@ function EarthGlobe() {
       {/* textura de fundo: esfera com gradiente atmosferico sutil */}
       <mesh renderOrder={0}>
         <sphereGeometry args={[RADIUS * 0.97, 64, 64]} />
-        <meshStandardMaterial color="#8aaac8" roughness={1} metalness={0} transparent opacity={0.35} depthTest={false} />
+        <meshStandardMaterial color="#f5f6f7" roughness={1} metalness={0} transparent opacity={0.18} depthTest={false} />
       </mesh>
       <mesh renderOrder={0}>
         <sphereGeometry args={[RADIUS * 1.06, 48, 48]} />
-        <meshBasicMaterial color="#c8d0e0" transparent opacity={0.07} side={THREE.BackSide} />
+        <meshBasicMaterial color="#e8edf4" transparent opacity={0.06} side={THREE.BackSide} />
       </mesh>
       {/* apenas as fronteiras dos paises */}
       <Borders />
@@ -199,7 +199,7 @@ export function Globe({ results, cheapestId, zoomKey = 0 }: GlobeProps) {
   const groupRef = useRef<THREE.Group>(null);
 
   return (
-    <Canvas camera={{ position: [0, 0, 9], fov: 45 }} dpr={[1, 2]} gl={{ alpha: true }}>
+    <Canvas camera={{ position: [0, 0, 11], fov: 45 }} dpr={[1, 2]} gl={{ alpha: true }}>
       <ambientLight intensity={0.6} />
       <directionalLight position={[5, 3, 5]} intensity={1.8} color="#fff8f0" />
       <directionalLight position={[-4, -2, -3]} intensity={0.15} color="#c0d8ff" />

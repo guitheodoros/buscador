@@ -48,11 +48,39 @@ body,
   overflow-y: auto;
 }
 
-/* Globo como fundo fixo, atras de tudo */
+/* Titulo: camada mais atras, texto oversize sangrado da viewport */
+.bg-title {
+  position: fixed;
+  z-index: 0;
+  top: 32px;
+  left: 52px;
+  right: 0;
+  pointer-events: none;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-family: "Cossette Texte", "Cossette", "Arial Black", "Franklin Gothic Heavy", Impact, sans-serif;
+  font-weight: 700;
+  text-transform: capitalize;
+  font-size: clamp(100px, 22vw, 320px);
+  line-height: 0.88;
+  letter-spacing: -0.04em;
+  color: #1d1d1f;
+}
+.bg-title span {
+  white-space: nowrap;
+  display: block;
+}
+
+/* Globo: frente do titulo, atras dos tiles, alinhado a direita */
 .globe-bg {
   position: fixed;
-  inset: 0;
-  z-index: 0;
+  left: 30%;
+  right: 0;
+  top: -6%;
+  bottom: 6%;
+  z-index: 1;
   pointer-events: none;
 }
 .globe-bg canvas {
@@ -60,35 +88,9 @@ body,
   height: 100% !important;
 }
 
-/* Titulo acima do box de busca */
-.bg-title {
-  grid-column: 1 / -1;
-  grid-row: 1;
-  justify-self: start;
-  align-self: end;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  padding: 0;
-  font-family: "Cossette Texte", "Cossette", "Arial Black", "Franklin Gothic Heavy", Impact, sans-serif;
-  font-weight: 700;
-  text-transform: capitalize;
-  font-size: clamp(48px, 10vw, 140px);
-  line-height: 0.92;
-  letter-spacing: -0.03em;
-  color: #1d1d1f;
-  pointer-events: none;
-  user-select: none;
-}
-.bg-title span {
-  white-space: nowrap;
-  display: block;
-}
-
 .statusbar {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -118,26 +120,26 @@ body,
   border-color: rgba(255, 149, 0, 0.22);
 }
 
-/* Bento grid */
+/* Bento grid — tiles ficam abaixo da area hero */
 .bento {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;
-  padding: 48px 60px 52px;
+  padding: max(48vh, 300px) 60px 52px;
   align-content: start;
 }
 .tile-search {
   grid-column: 1 / -1;
-  grid-row: 2;
+  grid-row: 1;
   width: 360px;
   max-width: 100%;
   justify-self: center;
 }
 .tile-matrix {
   grid-column: 1 / -1;
-  grid-row: 3;
+  grid-row: 2;
   width: 580px;
   max-width: 100%;
   height: auto;
@@ -145,10 +147,18 @@ body,
 }
 .tile-results {
   grid-column: 1 / -1;
-  grid-row: 4;
+  grid-row: 2;
+  width: 360px;
+  max-width: 100%;
+  justify-self: center;
 }
-.bento:not(.has-matrix) .tile-results {
+.bento.has-matrix .tile-results {
   grid-row: 3;
+}
+/* Após busca: tile-results vira responsivo */
+.bento.has-searched .tile-results {
+  width: auto;
+  justify-self: stretch;
 }
 
 /* Quando matrix aberta: busca na col 1, matrix na col 2, mesma linha, mesma largura */
@@ -163,9 +173,6 @@ body,
   width: auto;
   justify-self: stretch;
 }
-.bento.has-matrix .tile-results {
-  grid-row: 3;
-}
 
 .tile {
   background: rgba(255, 255, 255, 0.42);
@@ -178,6 +185,67 @@ body,
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+/* Dark tiles: redefine CSS vars em cascata */
+.tile-search,
+.tile-results,
+.tile-matrix {
+  --text: #f0f0f2;
+  --muted: rgba(240, 240, 242, 0.52);
+  --faint: rgba(240, 240, 242, 0.32);
+  --field: rgba(255, 255, 255, 0.07);
+  --field-alt: rgba(255, 255, 255, 0.04);
+  --hairline: rgba(255, 255, 255, 0.09);
+  --panel-border: rgba(255, 255, 255, 0.1);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --accent: #4da3ff;
+  --accent-hover: #6ab4ff;
+  --accent-soft: rgba(77, 163, 255, 0.15);
+  background: #111113;
+  border-color: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  color: var(--text);
+}
+
+/* fare-card dentro do tile escuro */
+.tile-results .fare-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+.tile-results .fare-card.best {
+  border-color: rgba(77, 163, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(77, 163, 255, 0.12);
+}
+.tile-results .point-value {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+.tile-results .tag {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+}
+/* airport list dropdown */
+.tile-search .airport-list {
+  background: #1c1c1f;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.tile-search .airport-list li:hover {
+  background: rgba(77, 163, 255, 0.15);
+}
+/* mode toggle */
+.tile-search .mode-toggle {
+  background: rgba(255, 255, 255, 0.06);
+}
+.tile-search .mode-toggle button.on {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text);
+}
+/* strategies border */
+.tile-search .strategies {
+  border-color: rgba(255, 255, 255, 0.09);
 }
 .tile-search {
   overflow: visible;
@@ -838,22 +906,52 @@ td.cell .star {
 }
 
 /* --------------------------------------------------------------- mobile */
+/* Tablet: fundo ok, tiles mantêm comportamento de coluna única */
 @media (max-width: 1040px) {
+  .bg-title {
+    left: 24px;
+    font-size: clamp(72px, 20vw, 180px);
+  }
   .bento {
     grid-template-columns: 1fr;
-    gap: 28px;
-    padding: 32px 20px 40px;
+    gap: 20px;
+    padding: max(44vh, 240px) 20px 40px;
   }
-  .tile-search,
-  .tile-globe,
+  .tile-search {
+    grid-column: 1;
+    grid-row: auto;
+    width: 360px;
+    max-width: calc(100% - 0px);
+    justify-self: center;
+  }
   .tile-matrix,
   .tile-results {
     grid-column: 1;
     grid-row: auto;
+    width: auto;
+    justify-self: stretch;
   }
-  .tile-globe,
-  .tile-matrix {
-    height: 46vh;
-    min-height: 320px;
+  .bento.has-matrix .tile-search {
+    width: auto;
+    justify-self: stretch;
+    grid-column: 1;
+  }
+  .bento.has-matrix .tile-matrix {
+    grid-column: 1;
+  }
+}
+
+/* Mobile pequeno: tudo full-width */
+@media (max-width: 480px) {
+  .bg-title {
+    font-size: clamp(56px, 18vw, 100px);
+  }
+  .bento {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .tile-search {
+    width: auto;
+    justify-self: stretch;
   }
 }
