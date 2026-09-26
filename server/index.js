@@ -377,20 +377,6 @@ app.post("/api/duffel-offers", async (req, res) => {
   }
 });
 
-// --- Email de teste -----------------------------------------------------------
-app.post("/api/test-email", async (req, res) => {
-  const { to } = req.body ?? {};
-  if (!to) return res.status(400).json({ error: "Campo obrigatório: to" });
-  const { sendPriceAlert } = await import("./mailer.js");
-  const fakeMonitor = {
-    origin: "GRU", destination: "LIS",
-    departureDate: "2027-03-10", returnDate: "2027-03-25",
-    cabin: "ECONOMY", targetPrice: 3500, lastPrice: 3900, email: to,
-  };
-  await sendPriceAlert({ to, monitor: fakeMonitor, currentPrice: 3498 });
-  res.json({ ok: true, to });
-});
-
 // --- Monitores de preço -------------------------------------------------------
 app.get("/api/monitors", (_req, res) => {
   res.json(listMonitors());
