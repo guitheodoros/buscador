@@ -12,6 +12,8 @@ import dotenv from "dotenv";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
+import { listMonitors, createMonitor, deleteMonitor } from "./monitors.js";
+import { startScheduler } from "./scheduler.js";
 import {
   CONFIG,
   cacheKey,
@@ -368,6 +370,24 @@ app.post("/api/duffel-offers", async (req, res) => {
   }
 });
 
+// --- Monitores de preço -------------------------------------------------------
+app.get("/api/monitors", (_req, res) => {
+  res.json(listMonitors());
+});
+
+app.post("/api/monitors", (req, res) => {
+  const b = req.body ?? {};
+  if (!b.origin || !b.destination || !b.departureDate || !b.targetPrice || !b.email) {
+    return res.status(400).json({ error: "Campos obrigatórios: origin, destination, departureDate, targetPrice, email" });
+  }
+  res.status(201).json(createMonitor(b));
+});
+
+app.delete("/api/monitors/:id", (req, res) => {
+  deleteMonitor(req.params.id);
+  res.json({ ok: true });
+});
+
 // --- Build estatico (producao) --------------------------------------------
 const dist = path.join(__dirname, "..", "dist");
 if (fs.existsSync(dist)) {
@@ -376,6 +396,7 @@ if (fs.existsSync(dist)) {
 }
 
 app.listen(PORT, () => {
+  startScheduler(PORT);
   console.log(
     `[api] proxy em http://localhost:${PORT}  (Amadeus: ${hasCreds ? "sim" : "nao"}, ` +
       `seats.aero: ${hasSeats ? "sim" : "nao"}, Duffel: ${hasDuffel ? "sim" : "nao"}, env: ${ENV})`

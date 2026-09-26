@@ -4,6 +4,7 @@ import { SearchPanel } from "./components/SearchPanel";
 import { ResultsList } from "./components/ResultsList";
 import { DateMatrix } from "./components/DateMatrix";
 import { MonthCalendar } from "./components/MonthCalendar";
+import { PriceMonitor } from "./components/PriceMonitor";
 import { aggregateSearch } from "./lib/aggregate";
 import { checkAmadeusHealth } from "./lib/amadeusClient";
 import { checkSeatsHealth } from "./lib/seatsClient";
@@ -139,6 +140,15 @@ export default function App() {
             />
           </section>
         ) : null}
+
+        <section className="tile tile-monitor">
+          <PriceMonitor
+            defaultOrigin={baseQuery?.origin}
+            defaultDestination={baseQuery?.destination}
+            defaultDep={baseQuery?.departureDate}
+            defaultRet={baseQuery?.returnDate}
+          />
+        </section>
 
         <section className="tile tile-results">
           <ResultsList
