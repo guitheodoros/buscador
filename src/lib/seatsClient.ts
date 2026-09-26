@@ -2,7 +2,7 @@
 // A chave do seats.aero fica no servidor. Sem chave/disponibilidade, retorna
 // null e a estrategia de milhas cai no mock.
 
-const API = "/api";
+import { API_BASE as API } from "./apiBase";
 
 let seatsLive: boolean | null = null;
 

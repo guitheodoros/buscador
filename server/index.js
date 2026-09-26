@@ -47,6 +47,13 @@ const hasDuffel = Boolean(DUFFEL_TOKEN);
 
 const app = express();
 app.set("trust proxy", "loopback");
+app.use((_req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (_req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
 app.use(express.json());
 
 const clientIp = (req) => req.ip || req.socket?.remoteAddress || "unknown";

@@ -3,7 +3,7 @@
 // nunca ve o segredo e nao ha problema de CORS. Se o proxy responder que nao
 // ha credenciais/retorno, o chamador cai no modo MOCK.
 
-const API = "/api";
+import { API_BASE as API } from "./apiBase";
 
 let amadeusLive: boolean | null = null;
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_BASE } from "../lib/apiBase";
 
 interface Monitor {
   id: string;
@@ -35,7 +36,7 @@ export function PriceMonitor({ defaultOrigin = "", defaultDestination = "", defa
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetch("/api/monitors").then((r) => r.json()).then(setMonitors).catch(() => {});
+    fetch(`${API_BASE}/monitors`).then((r) => r.json()).then(setMonitors).catch(() => {});
   }, []);
 
   useEffect(() => { if (defaultOrigin) setOrigin(defaultOrigin); }, [defaultOrigin]);
@@ -47,7 +48,7 @@ export function PriceMonitor({ defaultOrigin = "", defaultDestination = "", defa
     if (!origin || !destination || !dep || !targetPrice || !email) return;
     setSaving(true);
     try {
-      const res = await fetch("/api/monitors", {
+      const res = await fetch(`${API_BASE}/monitors`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ origin, destination, departureDate: dep, returnDate: ret || undefined, cabin, targetPrice: Number(targetPrice), email }),
@@ -62,7 +63,7 @@ export function PriceMonitor({ defaultOrigin = "", defaultDestination = "", defa
   }
 
   async function remove(id: string) {
-    await fetch(`/api/monitors/${id}`, { method: "DELETE" });
+    await fetch(`${API_BASE}/monitors/${id}`, { method: "DELETE" });
     setMonitors((prev) => prev.filter((m) => m.id !== id));
   }
 

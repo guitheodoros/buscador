@@ -1,7 +1,7 @@
 // Cliente do BROWSER para ofertas Duffel via proxy /api/duffel-offers.
 // A chave do Duffel fica no servidor. Sem chave/retorno, cai no mock.
 
-const API = "/api";
+import { API_BASE as API } from "./apiBase";
 
 let duffelLive: boolean | null = null;
 
