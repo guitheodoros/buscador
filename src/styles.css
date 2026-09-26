@@ -150,66 +150,6 @@ body,
   flex-direction: column;
 }
 
-/* Dark tiles: redefine CSS vars em cascata */
-.tile-search,
-.tile-results,
-.tile-matrix {
-  --text: #f0f0f2;
-  --muted: rgba(240, 240, 242, 0.52);
-  --faint: rgba(240, 240, 242, 0.32);
-  --field: rgba(255, 255, 255, 0.07);
-  --field-alt: rgba(255, 255, 255, 0.04);
-  --hairline: rgba(255, 255, 255, 0.09);
-  --panel-border: rgba(255, 255, 255, 0.1);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --accent: #4da3ff;
-  --accent-hover: #6ab4ff;
-  --accent-soft: rgba(77, 163, 255, 0.15);
-  background: #111113;
-  border-color: rgba(255, 255, 255, 0.07);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  color: var(--text);
-}
-
-/* fare-card dentro do tile escuro */
-.tile-results .fare-card {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.09);
-}
-.tile-results .fare-card.best {
-  border-color: rgba(77, 163, 255, 0.5);
-  box-shadow: 0 0 0 3px rgba(77, 163, 255, 0.12);
-}
-.tile-results .point-value {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.09);
-}
-.tile-results .tag {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--muted);
-}
-/* airport list dropdown */
-.tile-search .airport-list {
-  background: #1c1c1f;
-  border-color: rgba(255, 255, 255, 0.1);
-}
-.tile-search .airport-list li:hover {
-  background: rgba(77, 163, 255, 0.15);
-}
-/* mode toggle */
-.tile-search .mode-toggle {
-  background: rgba(255, 255, 255, 0.06);
-}
-.tile-search .mode-toggle button.on {
-  background: rgba(255, 255, 255, 0.12);
-  color: var(--text);
-}
-/* strategies border */
-.tile-search .strategies {
-  border-color: rgba(255, 255, 255, 0.09);
-}
 .tile-search {
   overflow: visible;
   padding: 20px;
