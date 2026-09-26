@@ -106,16 +106,10 @@ body,
 }
 .tile-results {
   grid-column: 1 / -1;
-  grid-row: 4;
-  width: 360px;
+  grid-row: 3;
+  width: 420px;
   max-width: 100%;
   justify-self: center;
-}
-.bento:not(.has-matrix) .tile-results {
-  grid-row: 3;
-}
-.bento.has-matrix .tile-results {
-  grid-row: 5;
 }
 /* Após busca: tile-results vira responsivo */
 .bento.has-searched .tile-results {
@@ -123,17 +117,24 @@ body,
   justify-self: stretch;
 }
 
-/* Quando matrix aberta: busca na col 1, matrix na col 2, mesma linha, mesma largura */
+/* Com matrix aberta: busca (col 1) e matriz (col 2) na mesma linha */
+.bento.has-matrix {
+  max-width: 1200px;
+}
 .bento.has-matrix .tile-search {
   grid-column: 1;
+  grid-row: 1;
   width: auto;
   justify-self: stretch;
 }
 .bento.has-matrix .tile-matrix {
   grid-column: 2;
-  grid-row: 2;
+  grid-row: 1;
   width: auto;
   justify-self: stretch;
+}
+.bento.has-matrix .tile-results {
+  grid-row: 3;
 }
 
 .tile {
@@ -857,12 +858,10 @@ td.cell .star {
 /* --------------------------------------------------------- monitor de preço */
 .tile-monitor {
   grid-column: 1 / -1;
-  grid-row: 3;
+  grid-row: 2;
   padding: 20px;
   overflow: visible;
 }
-.bento.has-matrix .tile-monitor { grid-row: 4; }
-.bento.has-searched .tile-monitor { display: block; }
 
 .monitor-panel {}
 .monitor-head {
@@ -969,11 +968,15 @@ td.cell .star {
     width: auto;
     justify-self: stretch;
   }
+  .bento.has-matrix {
+    max-width: 100%;
+  }
   .bento.has-matrix .tile-search,
   .bento.has-matrix .tile-matrix {
     width: auto;
     justify-self: stretch;
     grid-column: 1;
+    grid-row: auto;
   }
 }
 
