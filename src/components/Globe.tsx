@@ -28,45 +28,6 @@ function Marker({ iata }: { iata: string }) {
   );
 }
 
-/** Preenchimento dos paises, triangulando cada anel de fronteira como poligono. */
-function CountryFill() {
-  const geometry = useMemo(() => {
-    const positions: number[] = [];
-    const normals: number[] = [];
-    const indices: number[] = [];
-    let offset = 0;
-    for (const ring of worldBorders as [number, number][][]) {
-      if (ring.length < 3) continue;
-      const outer = ring.map(([lon, lat]) => new THREE.Vector2(lon, lat));
-      let faces: number[][] = [];
-      try { faces = THREE.ShapeUtils.triangulateShape(outer, []); } catch { continue; }
-      for (const v of outer) {
-        const p = latLonToVector3(v.y, v.x, RADIUS + 0.006);
-        positions.push(p.x, p.y, p.z);
-        const n = p.clone().normalize();
-        normals.push(n.x, n.y, n.z);
-      }
-      for (const f of faces) indices.push(offset + f[0], offset + f[1], offset + f[2]);
-      offset += outer.length;
-    }
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    geo.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
-    geo.setIndex(indices);
-    return geo;
-  }, []);
-  return (
-    <mesh geometry={geometry} renderOrder={1}>
-      <meshStandardMaterial
-        color="#4a7a3a"
-        roughness={0.85}
-        metalness={0}
-        side={THREE.DoubleSide}
-        depthWrite={true}
-      />
-    </mesh>
-  );
-}
 
 /** Fronteiras dos paises (linhas) sobre a esfera. */
 function Borders() {
