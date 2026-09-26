@@ -156,15 +156,19 @@ export const milesStrategy: FareStrategy = {
     if (real.length > 0) return real;
 
     // Fallback mock (sem chave ou sem disponibilidade real).
+    // Milhas escalam com distancia: ~1k pts por 150km, min 12k, max 90k.
+    const { distanceKm } = await import("../lib/mockFares");
+    const km = distanceKm(query.origin, query.destination);
+    const miles = Math.min(90_000, Math.max(12_000, Math.round(km / 150) * 1_000));
     return makeMockFares(query, {
       strategy: "miles",
-      discount: 0.12, // taxas em dinheiro
+      discount: 0.11, // so taxas em dinheiro (~11% do preco base)
       tags: [isSeatsLive() ? "mock (sem award)" : "mock (sem chave)"],
       rationale:
         "Emissao 100% em milhas: paga so as taxas em dinheiro. Configure SEATS_AERO_API_KEY para disponibilidade real de award.",
       confidence: "media",
       bookingHint: "Verificar disponibilidade de award no programa (seats.aero).",
-      points: { amount: 65000, program: "Smiles/LATAM Pass/TudoAzul" },
+      points: { amount: miles, program: "Smiles/LATAM Pass/TudoAzul" },
     });
   },
 };

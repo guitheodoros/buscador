@@ -45,18 +45,24 @@ export function seededRng(seed: string): () => number {
 
 const cabinMultiplier: Record<string, number> = {
   ECONOMY: 1,
-  PREMIUM_ECONOMY: 1.8,
-  BUSINESS: 3.4,
-  FIRST: 6,
+  PREMIUM_ECONOMY: 1.75,
+  BUSINESS: 3.8,
+  FIRST: 7,
 };
 
-/** Preco-base de referencia (ida) para a query, em BRL aproximado. */
+/**
+ * Preco-base de referencia em BRL, calibrado com precos reais do mercado:
+ * GRU→LIS ~R$4.500 RT eco | GRU→MIA ~R$3.600 RT eco | GRU→GIG ~R$700 RT eco
+ */
 export function basePrice(query: SearchQuery): number {
   const km = distanceKm(query.origin, query.destination);
-  const perKm = 0.45; // R$/km aproximado
-  const rt = query.returnDate ? 1.9 : 1; // ida e volta ~ 1.9x
+  const perKm = 0.23;
+  const rt = query.returnDate ? 1.9 : 1;
   const cabin = cabinMultiplier[query.cabin] ?? 1;
-  return Math.round((450 + km * perKm) * rt * cabin);
+  const raw = (200 + km * perKm) * rt * cabin;
+  // Piso minimo: nao existe passagem de aviao mais barata que isso
+  const floor = query.returnDate ? 550 : 290;
+  return Math.round(Math.max(raw, floor));
 }
 
 function pick<T>(rng: () => number, arr: T[]): T {
