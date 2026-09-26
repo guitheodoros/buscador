@@ -42,55 +42,13 @@ body,
 .app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
   width: 100vw;
   overflow-y: auto;
 }
 
-/* Titulo: camada mais atras, texto oversize sangrado da viewport */
-.bg-title {
-  position: fixed;
-  z-index: 0;
-  top: 32px;
-  left: 52px;
-  right: 0;
-  pointer-events: none;
-  user-select: none;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  font-family: "Cossette Texte", "Cossette", "Arial Black", "Franklin Gothic Heavy", Impact, sans-serif;
-  font-weight: 700;
-  text-transform: capitalize;
-  font-size: clamp(100px, 22vw, 320px);
-  line-height: 0.88;
-  letter-spacing: -0.04em;
-  color: #1d1d1f;
-}
-.bg-title span {
-  white-space: nowrap;
-  display: block;
-}
-
-/* Globo: frente do titulo, atras dos tiles, alinhado a direita */
-.globe-bg {
-  position: fixed;
-  left: 30%;
-  right: 0;
-  top: -6%;
-  bottom: 6%;
-  z-index: 1;
-  pointer-events: none;
-}
-.globe-bg canvas {
-  width: 100% !important;
-  height: 100% !important;
-}
-
 .statusbar {
-  position: relative;
-  z-index: 2;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -120,20 +78,21 @@ body,
   border-color: rgba(255, 149, 0, 0.22);
 }
 
-/* Bento grid — tiles ficam abaixo da area hero */
+/* Bento grid — layout centralizado */
 .bento {
-  position: relative;
-  z-index: 2;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  padding: max(48vh, 300px) 60px 52px;
+  gap: 24px;
+  padding: 80px 60px 60px;
   align-content: start;
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
 }
 .tile-search {
   grid-column: 1 / -1;
   grid-row: 1;
-  width: 360px;
+  width: 420px;
   max-width: 100%;
   justify-self: center;
 }
@@ -988,22 +947,19 @@ td.cell .star {
 }
 
 /* --------------------------------------------------------------- mobile */
-/* Tablet: fundo ok, tiles mantêm comportamento de coluna única */
+/* Tablet */
 @media (max-width: 1040px) {
-  .bg-title {
-    left: 24px;
-    font-size: clamp(72px, 20vw, 180px);
-  }
   .bento {
     grid-template-columns: 1fr;
     gap: 20px;
-    padding: max(44vh, 240px) 20px 40px;
+    padding: 60px 20px 40px;
+    max-width: 100%;
   }
   .tile-search {
     grid-column: 1;
     grid-row: auto;
-    width: 360px;
-    max-width: calc(100% - 0px);
+    width: 420px;
+    max-width: 100%;
     justify-self: center;
   }
   .tile-matrix,
@@ -1013,24 +969,18 @@ td.cell .star {
     width: auto;
     justify-self: stretch;
   }
-  .bento.has-matrix .tile-search {
+  .bento.has-matrix .tile-search,
+  .bento.has-matrix .tile-matrix {
     width: auto;
     justify-self: stretch;
     grid-column: 1;
   }
-  .bento.has-matrix .tile-matrix {
-    grid-column: 1;
-  }
 }
 
-/* Mobile pequeno: tudo full-width */
+/* Mobile pequeno */
 @media (max-width: 480px) {
-  .bg-title {
-    font-size: clamp(56px, 18vw, 100px);
-  }
   .bento {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding: 40px 16px 32px;
   }
   .tile-search {
     width: auto;

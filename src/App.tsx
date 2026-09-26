@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Globe } from "./components/Globe";
 import { SearchPanel } from "./components/SearchPanel";
 import { ResultsList } from "./components/ResultsList";
 import { DateMatrix } from "./components/DateMatrix";
@@ -31,7 +30,6 @@ export default function App() {
   const [baseQuery, setBaseQuery] = useState<SearchQuery | null>(null);
   const [matrix, setMatrix] = useState<Matrix | null>(null);
   const [monthMatrix, setMonthMatrix] = useState<MonthMatrix | null>(null);
-  const [searchCount, setSearchCount] = useState(0);
 
   useEffect(() => {
     checkAmadeusHealth().then(setAmadeusLive);
@@ -54,7 +52,6 @@ export default function App() {
   }
 
   async function runSearch(q: SearchQuery) {
-    setSearchCount((c) => c + 1);
     setLoading(true);
     setRawResults([]);
     setBaseQuery(q);
@@ -106,15 +103,6 @@ export default function App() {
 
   return (
     <div className="app">
-      <div className="bg-title" aria-hidden="true">
-        <span>Buscador</span>
-        <span>de Sonhos</span>
-      </div>
-
-      <div className="globe-bg">
-        <Globe results={results} cheapestId={cheapestId} zoomKey={searchCount} />
-      </div>
-
       <main className={`bento ${hasMatrix ? "has-matrix" : ""} ${baseQuery ? "has-searched" : ""}`}>
         <section className="tile tile-search">
           <SearchPanel onSearch={runSearch} loading={loading} />
