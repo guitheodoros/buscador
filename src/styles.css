@@ -1,21 +1,21 @@
 :root {
-  --bg: #f5f5f7;
-  --panel-solid: #ffffff;
-  --panel-border: rgba(0, 0, 0, 0.08);
-  --hairline: rgba(0, 0, 0, 0.07);
+  --bg: #dde6f5;
+  --panel-solid: rgba(255, 255, 255, 0.72);
+  --panel-border: rgba(255, 255, 255, 0.5);
+  --hairline: rgba(0, 0, 0, 0.08);
   --text: #1d1d1f;
   --muted: #6e6e73;
   --faint: #86868b;
   --accent: #0071e3;
   --accent-hover: #0077ed;
   --accent-soft: rgba(0, 113, 227, 0.1);
-  --field: #ffffff;
-  --field-alt: #f5f5f7;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow: 0 6px 22px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 14px 44px rgba(0, 0, 0, 0.12);
-  --radius: 20px;
-  --radius-sm: 14px;
+  --field: rgba(255, 255, 255, 0.55);
+  --field-alt: rgba(255, 255, 255, 0.3);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.13);
+  --radius: 26px;
+  --radius-sm: 16px;
   color-scheme: light;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
     Roboto, Helvetica, Arial, sans-serif;
@@ -32,10 +32,20 @@ body,
   margin: 0;
   height: 100%;
   width: 100%;
-  background: var(--bg);
   color: var(--text);
   font-family: inherit;
   letter-spacing: -0.01em;
+}
+
+/* Fundo com blobs de cor — necessário para o Liquid Glass ter o que refratar */
+body {
+  background:
+    radial-gradient(ellipse 70% 55% at 12% 18%, rgba(147, 197, 253, 0.55) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 65% at 88% 82%, rgba(196, 181, 253, 0.45) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 45% at 72% 15%, rgba(167, 243, 208, 0.3) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 55% at 25% 85%, rgba(253, 186, 116, 0.2) 0%, transparent 60%),
+    #dde6f5;
+  background-attachment: fixed;
 }
 
 /* ------------------------------------------------------------------ layout */
@@ -138,17 +148,46 @@ body,
 }
 
 .tile {
-  background: rgba(255, 255, 255, 0.42);
-  backdrop-filter: saturate(180%) blur(30px);
-  -webkit-backdrop-filter: saturate(180%) blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  /* Liquid Glass — material translúcido com refração e especular */
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(52px) saturate(180%) brightness(1.06) contrast(1.02);
+  -webkit-backdrop-filter: blur(52px) saturate(180%) brightness(1.06) contrast(1.02);
+  border: 1px solid rgba(255, 255, 255, 0.48);
   border-radius: var(--radius);
+  box-shadow:
+    /* sombra externa suave */
+    0 4px 6px rgba(0, 0, 0, 0.04),
+    0 20px 52px rgba(0, 0, 0, 0.09),
+    /* especular topo — borda brilhante como vidro físico */
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.92),
+    /* brilho lateral esquerdo */
+    inset 1px 0 0 rgba(255, 255, 255, 0.45),
+    /* reflexo sutil na borda direita e inferior */
+    inset -1px 0 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.18);
   min-height: 0;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
 }
+
+/* Camada de destaque especular no topo (efeito lente) */
+.tile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    175deg,
+    rgba(255, 255, 255, 0.28) 0%,
+    rgba(255, 255, 255, 0.06) 30%,
+    transparent 55%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+.tile > * { position: relative; z-index: 1; }
 
 .tile-search {
   overflow: visible;
@@ -216,13 +255,16 @@ label.strategy-toggle {
 input,
 select {
   background: var(--field);
-  border: 1px solid var(--hairline);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 10px;
   color: var(--text);
   padding: 9px 11px;
   font-size: 13px;
   font-family: inherit;
   transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 3px rgba(0,0,0,0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 input:focus,
 select:focus {
