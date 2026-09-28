@@ -168,8 +168,9 @@ body:has(.app.dark) {
   flex-direction: column;
   min-height: 100vh;
   min-height: 100dvh;
-  width: 100vw;
+  width: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .statusbar {
@@ -364,6 +365,8 @@ label.strategy-toggle {
   gap: 9px;
   color: var(--text);
   font-size: 13px;
+  white-space: nowrap;
+  flex: none;
 }
 
 input,
@@ -1044,10 +1047,16 @@ td.cell .star {
 /* --------------------------------------------------------------- mobile */
 /* Tablet */
 @media (max-width: 1040px) {
+  body {
+    background-attachment: scroll;
+  }
+  body:has(.app.dark) {
+    background-attachment: scroll;
+  }
   .bento {
     grid-template-columns: 1fr;
     gap: 20px;
-    padding: 60px 20px 40px;
+    padding: 72px 20px 40px;
     max-width: 100%;
   }
   .tile-search {
@@ -1064,6 +1073,11 @@ td.cell .star {
     width: auto;
     justify-self: stretch;
   }
+  /* Evita sobreposição com tile-matrix quando a matriz está aberta */
+  .tile-monitor {
+    grid-column: 1;
+    grid-row: auto;
+  }
   .bento.has-matrix {
     max-width: 100%;
   }
@@ -1079,7 +1093,7 @@ td.cell .star {
 /* Mobile pequeno */
 @media (max-width: 480px) {
   .bento {
-    padding: 40px 16px 32px;
+    padding: 72px 16px 32px;
   }
   .tile-search {
     width: auto;
