@@ -960,6 +960,14 @@ td.cell .star {
   grid-row: 2;
   padding: 20px;
   overflow: visible;
+  width: 420px;
+  max-width: 100%;
+  justify-self: center;
+}
+/* Após busca, expande igual ao tile de resultados */
+.bento.has-searched .tile-monitor {
+  width: auto;
+  justify-self: stretch;
 }
 
 .monitor-panel {}
