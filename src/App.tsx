@@ -11,7 +11,7 @@ function isoInDays(days: number) {
 export default function App() {
   const [dark, setDark] = useState(false);
   const [origin, setOrigin] = useState("GRU");
-  const [destination, setDestination] = useState("LIS");
+  const [destination, setDestination] = useState("");
   const [departure, setDeparture] = useState(isoInDays(30));
   const [returnDate, setReturnDate] = useState(isoInDays(44));
   const [roundTrip, setRoundTrip] = useState(true);
