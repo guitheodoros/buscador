@@ -1108,3 +1108,75 @@ td.cell .star {
     justify-self: stretch;
   }
 }
+
+/* ------------------------------------------------------------- links de busca */
+.site-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.site-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 15px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline);
+  background: var(--field);
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.site-link > span:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.site-link strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+.site-link:hover {
+  border-color: var(--accent);
+}
+.site-link:active {
+  transform: scale(0.99);
+}
+.site-arrow {
+  color: var(--accent);
+  font-size: 18px;
+}
+.site-group {
+  border-top: 1px solid var(--hairline);
+}
+.site-group-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.site-group-title::-webkit-details-marker {
+  display: none;
+}
+.site-group-count {
+  margin-left: 4px;
+  color: var(--muted);
+}
+.site-group-title .chevron {
+  color: var(--muted);
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+.site-group[open] .site-group-title .chevron {
+  transform: rotate(180deg);
+}
+.site-group .site-list {
+  padding-bottom: 14px;
+}

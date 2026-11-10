@@ -1,187 +1,126 @@
-import { useEffect, useMemo, useState } from "react";
-import { SearchPanel } from "./components/SearchPanel";
-import { ResultsList } from "./components/ResultsList";
-import { DateMatrix } from "./components/DateMatrix";
-import { MonthCalendar } from "./components/MonthCalendar";
-import { PriceMonitor } from "./components/PriceMonitor";
-import { aggregateSearch } from "./lib/aggregate";
-import { checkAmadeusHealth } from "./lib/amadeusClient";
-import { checkSeatsHealth } from "./lib/seatsClient";
-import { checkDuffelHealth } from "./lib/duffelClient";
-import { DEFAULT_POINT_VALUE, sortByEffectiveCost } from "./lib/pricing";
-import {
-  buildFlexMatrix,
-  buildMonthMatrix,
-  cheapestMonthDay,
-  addDays,
-  type DateMatrix as Matrix,
-  type MonthMatrix,
-} from "./lib/flexMatrix";
-import type { FareResult, SearchQuery } from "./types";
+import { useState } from "react";
+import { AirportSelect } from "./components/AirportSelect";
+import { buildLinkGroups, type Cabin, type Trip } from "./lib/flightLinks";
+
+function isoInDays(days: number) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
 
 export default function App() {
-  const [rawResults, setRawResults] = useState<FareResult[]>([]);
-  const [tookMs, setTookMs] = useState<number>();
-  const [loading, setLoading] = useState(false);
-  const [amadeusLive, setAmadeusLive] = useState(false);
-  const [seatsLive, setSeatsLive] = useState(false);
-  const [duffelLive, setDuffelLive] = useState(false);
-  const [pointValue, setPointValue] = useState(DEFAULT_POINT_VALUE);
-  const [baseQuery, setBaseQuery] = useState<SearchQuery | null>(null);
-  const [matrix, setMatrix] = useState<Matrix | null>(null);
-  const [monthMatrix, setMonthMatrix] = useState<MonthMatrix | null>(null);
   const [dark, setDark] = useState(false);
+  const [origin, setOrigin] = useState("GRU");
+  const [destination, setDestination] = useState("LIS");
+  const [departure, setDeparture] = useState(isoInDays(30));
+  const [returnDate, setReturnDate] = useState(isoInDays(44));
+  const [roundTrip, setRoundTrip] = useState(true);
+  const [adults, setAdults] = useState(1);
+  const [cabin, setCabin] = useState<Cabin>("economy");
+  const [trip, setTrip] = useState<Trip | null>(null);
 
-  useEffect(() => {
-    checkAmadeusHealth().then(setAmadeusLive);
-    checkSeatsHealth().then(setSeatsLive);
-    checkDuffelHealth().then(setDuffelLive);
-  }, []);
+  const invalid = !origin || !destination || origin === destination || !departure ||
+    (roundTrip && (!returnDate || returnDate < departure));
 
-  // Ordena por custo efetivo (dinheiro + pontos*valor). Recomputa quando o
-  // usuario ajusta o valor do ponto, sem refazer a busca.
-  const results = useMemo(
-    () => sortByEffectiveCost(rawResults, pointValue),
-    [rawResults, pointValue]
-  );
-  const cheapestId = results[0]?.id;
-
-  async function aggregateFor(q: SearchQuery) {
-    const agg = await aggregateSearch(q);
-    setRawResults(agg.results);
-    setTookMs(agg.tookMs);
+  function search() {
+    setTrip({ origin, destination, departure, returnDate: roundTrip ? returnDate : undefined, adults, cabin });
   }
 
-  async function runSearch(q: SearchQuery) {
-    setLoading(true);
-    setRawResults([]);
-    setBaseQuery(q);
-    setMatrix(null);
-    setMonthMatrix(null);
-    try {
-      if (q.mode === "month") {
-        // Monta o calendario do mes, escolhe o dia mais barato e busca nele.
-        const mm = await buildMonthMatrix(q);
-        setMonthMatrix(mm);
-        const day = cheapestMonthDay(mm) ?? `${q.month}-01`;
-        const effQ = { ...q, departureDate: day, returnDate: q.nights ? addDays(day, q.nights) : undefined };
-        setBaseQuery(effQ);
-        await aggregateFor(effQ);
-      } else {
-        // Datas exatas: matriz ida x volta assincrona (nao bloqueia resultados).
-        if (q.flexible) buildFlexMatrix(q, q.flexDays ?? 3).then(setMatrix);
-        await aggregateFor(q);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // Clique numa celula da matriz ida x volta: busca aquele par e recentra.
-  function pickDates(dep: string, ret?: string) {
-    if (!baseQuery) return;
-    runSearch({ ...baseQuery, departureDate: dep, returnDate: ret });
-  }
-
-  // Clique num dia do calendario: busca aquele dia (mantendo o calendario).
-  async function pickDay(date: string) {
-    if (!baseQuery) return;
-    const effQ = {
-      ...baseQuery,
-      departureDate: date,
-      returnDate: baseQuery.nights ? addDays(date, baseQuery.nights) : undefined,
-    };
-    setBaseQuery(effQ);
-    setLoading(true);
-    try {
-      await aggregateFor(effQ);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const hasMatrix = Boolean(monthMatrix || matrix);
+  const groups = trip ? buildLinkGroups(trip) : [];
 
   return (
     <div className={`app${dark ? " dark" : ""}`}>
-      <button
-        className="theme-toggle"
-        onClick={() => setDark(d => !d)}
-        title={dark ? "Modo claro" : "Modo noturno"}
-      >
-        {dark ? (
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-            <circle cx="12" cy="12" r="4.5"/>
-            <line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-            <line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-          </svg>
-        ) : (
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-          </svg>
-        )}
+      <button className="theme-toggle" onClick={() => setDark((d) => !d)} title={dark ? "Modo claro" : "Modo noturno"}>
+        {dark ? "☀" : "☾"}
       </button>
 
-      <main className={`bento ${hasMatrix ? "has-matrix" : ""} ${baseQuery ? "has-searched" : ""}`}>
+      <main className="bento">
         <section className="tile tile-search">
-          <SearchPanel onSearch={runSearch} loading={loading} />
-        </section>
+          <h2 className="section">Buscar passagem</h2>
 
-        {monthMatrix ? (
-          <section className="tile tile-matrix">
-            <MonthCalendar
-              matrix={monthMatrix}
-              selectedDate={baseQuery?.departureDate}
-              onPick={pickDay}
-              onClose={() => setMonthMatrix(null)}
-            />
-          </section>
-        ) : matrix ? (
-          <section className="tile tile-matrix">
-            <DateMatrix
-              matrix={matrix}
-              selectedDep={baseQuery?.departureDate}
-              selectedRet={baseQuery?.returnDate}
-              onPick={pickDates}
-              onClose={() => setMatrix(null)}
-            />
-          </section>
-        ) : null}
+          <div className="row">
+            <AirportSelect label="Origem" value={origin} onChange={setOrigin} />
+            <AirportSelect label="Destino" value={destination} onChange={setDestination} />
+          </div>
 
-        <section className="tile tile-monitor">
-          <PriceMonitor
-            defaultOrigin={baseQuery?.origin}
-            defaultDestination={baseQuery?.destination}
-            defaultDep={baseQuery?.departureDate}
-            defaultRet={baseQuery?.returnDate}
-          />
+          <div className="row">
+            <label className="checkbox">
+              <input type="checkbox" checked={roundTrip} onChange={(e) => setRoundTrip(e.target.checked)} />
+              Ida e volta
+            </label>
+            <label>
+              Adultos
+              <input type="number" min={1} max={9} value={adults} onChange={(e) => setAdults(Math.max(1, Number(e.target.value)))} />
+            </label>
+            <label>
+              Cabine
+              <select value={cabin} onChange={(e) => setCabin(e.target.value as Cabin)}>
+                <option value="economy">Econômica</option>
+                <option value="premium">Premium</option>
+                <option value="business">Executiva</option>
+                <option value="first">Primeira</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="row">
+            <label>
+              Ida
+              <input type="date" value={departure} onChange={(e) => setDeparture(e.target.value)} />
+            </label>
+            <label>
+              Volta
+              <input type="date" value={returnDate} disabled={!roundTrip} min={departure} onChange={(e) => setReturnDate(e.target.value)} />
+            </label>
+          </div>
+
+          <button className="primary" onClick={search} disabled={invalid}>
+            Buscar preços
+          </button>
         </section>
 
         <section className="tile tile-results">
-          <ResultsList
-            results={results}
-            cheapestId={cheapestId}
-            tookMs={tookMs}
-            loading={loading}
-            pointValue={pointValue}
-            onPointValueChange={setPointValue}
-          />
+          {trip ? (
+            <>
+              <h2 className="section">
+                {trip.origin} → {trip.destination}
+              </h2>
+              <p className="muted" style={{ margin: "0 0 14px" }}>
+                Abra cada site e compare — os preços mudam entre eles.
+              </p>
+              {groups.map((g, i) => (
+                <details key={g.title} className="site-group" open={i === 0}>
+                  <summary className="site-group-title">
+                    <span>
+                      {g.title} <span className="site-group-count">{g.links.length}</span>
+                    </span>
+                    <span className="chevron">⌄</span>
+                  </summary>
+                  <div className="site-list">
+                    {g.links.map((l) => (
+                      <a key={l.id} className="site-link" href={l.url} target="_blank" rel="noopener noreferrer">
+                        <span>
+                          <strong>{l.name}</strong>
+                          <span className="muted">{l.hint}</span>
+                        </span>
+                        <span className="site-arrow">↗</span>
+                      </a>
+                    ))}
+                  </div>
+                </details>
+              ))}
+            </>
+          ) : (
+            <>
+              <h2 className="section">Onde procurar</h2>
+              <p className="muted" style={{ margin: 0 }}>
+                Preencha a viagem e clique em “Buscar preços” para abrir a mesma busca nos comparadores (Google Flights,
+                Skyscanner, Kayak, Momondo, Tickets), nos sites das companhias aéreas e nos programas de milhas.
+              </p>
+            </>
+          )}
         </section>
       </main>
-
-      <footer className="statusbar">
-        <span className={`data-mode ${amadeusLive ? "live" : "mock"}`}>
-          {amadeusLive ? "Amadeus ao vivo" : "Amadeus mock"}
-        </span>
-        <span className={`data-mode ${seatsLive ? "live" : "mock"}`}>
-          {seatsLive ? "seats.aero ao vivo" : "milhas mock"}
-        </span>
-        <span className={`data-mode ${duffelLive ? "live" : "mock"}`}>
-          {duffelLive ? "Duffel ao vivo" : "consolidador mock"}
-        </span>
-      </footer>
     </div>
   );
 }
