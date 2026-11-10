@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AirportSelect } from "./components/AirportSelect";
 import { buildLinkGroups, type Cabin, type Trip } from "./lib/flightLinks";
 
@@ -18,6 +18,11 @@ export default function App() {
   const [adults, setAdults] = useState(1);
   const [cabin, setCabin] = useState<Cabin>("economy");
   const [trip, setTrip] = useState<Trip | null>(null);
+  const resultsRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (trip) resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [trip]);
 
   const invalid = !origin || !destination || origin === destination || !departure ||
     (roundTrip && (!returnDate || returnDate < departure));
@@ -36,50 +41,53 @@ export default function App() {
 
       <main className="bento">
         <section className="tile tile-search">
-          <h2 className="section">Buscar passagem</h2>
+          {/* Um único filho do tile: senão cada linha vira uma camada própria e cobre a lista de aeroportos */}
+          <div>
+            <h2 className="section">Buscar passagem</h2>
 
-          <div className="row">
-            <AirportSelect label="Origem" value={origin} onChange={setOrigin} />
-            <AirportSelect label="Destino" value={destination} onChange={setDestination} />
+            <div className="row">
+              <AirportSelect label="Origem" value={origin} onChange={setOrigin} />
+              <AirportSelect label="Destino" value={destination} onChange={setDestination} />
+            </div>
+
+            <div className="row">
+              <label className="checkbox">
+                <input type="checkbox" checked={roundTrip} onChange={(e) => setRoundTrip(e.target.checked)} />
+                Ida e volta
+              </label>
+              <label>
+                Adultos
+                <input type="number" min={1} max={9} value={adults} onChange={(e) => setAdults(Math.max(1, Number(e.target.value)))} />
+              </label>
+              <label>
+                Cabine
+                <select value={cabin} onChange={(e) => setCabin(e.target.value as Cabin)}>
+                  <option value="economy">Econômica</option>
+                  <option value="premium">Premium</option>
+                  <option value="business">Executiva</option>
+                  <option value="first">Primeira</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="row">
+              <label>
+                Ida
+                <input type="date" value={departure} onChange={(e) => setDeparture(e.target.value)} />
+              </label>
+              <label>
+                Volta
+                <input type="date" value={returnDate} disabled={!roundTrip} min={departure} onChange={(e) => setReturnDate(e.target.value)} />
+              </label>
+            </div>
+
+            <button className="primary" onClick={search} disabled={invalid}>
+              Buscar preços
+            </button>
           </div>
-
-          <div className="row">
-            <label className="checkbox">
-              <input type="checkbox" checked={roundTrip} onChange={(e) => setRoundTrip(e.target.checked)} />
-              Ida e volta
-            </label>
-            <label>
-              Adultos
-              <input type="number" min={1} max={9} value={adults} onChange={(e) => setAdults(Math.max(1, Number(e.target.value)))} />
-            </label>
-            <label>
-              Cabine
-              <select value={cabin} onChange={(e) => setCabin(e.target.value as Cabin)}>
-                <option value="economy">Econômica</option>
-                <option value="premium">Premium</option>
-                <option value="business">Executiva</option>
-                <option value="first">Primeira</option>
-              </select>
-            </label>
-          </div>
-
-          <div className="row">
-            <label>
-              Ida
-              <input type="date" value={departure} onChange={(e) => setDeparture(e.target.value)} />
-            </label>
-            <label>
-              Volta
-              <input type="date" value={returnDate} disabled={!roundTrip} min={departure} onChange={(e) => setReturnDate(e.target.value)} />
-            </label>
-          </div>
-
-          <button className="primary" onClick={search} disabled={invalid}>
-            Buscar preços
-          </button>
         </section>
 
-        <section className="tile tile-results">
+        <section className="tile tile-results" ref={resultsRef}>
           {trip ? (
             <>
               <h2 className="section">

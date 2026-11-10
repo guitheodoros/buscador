@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { AIRPORT_LIST, getAirport } from "../lib/airports";
+import { getAirport, searchAirports } from "../lib/airports";
 
 interface AirportSelectProps {
   label: string;
@@ -14,14 +14,7 @@ export function AirportSelect({ label, value, onChange }: AirportSelectProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   const selected = getAirport(value);
-  const q = query.trim().toLowerCase();
-  const matches = AIRPORT_LIST.filter(
-    (a) =>
-      !q ||
-      a.iata.toLowerCase().includes(q) ||
-      a.city.toLowerCase().includes(q) ||
-      a.name.toLowerCase().includes(q)
-  ).slice(0, 8);
+  const matches = searchAirports(query);
 
   useEffect(() => {
     function onDoc(e: MouseEvent) {
@@ -52,6 +45,13 @@ export function AirportSelect({ label, value, onChange }: AirportSelectProps) {
         onChange={(e) => {
           setQuery(e.target.value);
           setOpen(true);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && open && matches[0]) {
+            e.preventDefault();
+            choose(matches[0].iata);
+            e.currentTarget.blur();
+          }
         }}
       />
       {open && matches.length > 0 && (

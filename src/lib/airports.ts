@@ -60,3 +60,33 @@ export const AIRPORTS = BY_IATA;
 export function getAirport(iata: string): Airport | undefined {
   return iata ? BY_IATA[iata.toUpperCase()] : undefined;
 }
+
+const MAJOR = Object.keys(NAME_OVERRIDES);
+const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const SEARCH = AIRPORT_LIST.map((a) => ({
+  a,
+  iata: a.iata.toLowerCase(),
+  text: norm(`${a.city} ${a.name}`),
+  rank: MAJOR.includes(a.iata) ? 0 : 1,
+}));
+
+/** Aeroportos que batem com a busca, do mais relevante ao menos relevante. */
+export function searchAirports(query: string, limit = 8): Airport[] {
+  const q = norm(query.trim());
+  if (!q) return MAJOR.slice(0, limit).map((iata) => BY_IATA[iata]).filter(Boolean);
+
+  const score = (s: (typeof SEARCH)[number]) => {
+    if (s.iata === q) return 0;
+    if (s.text.startsWith(q)) return 1;
+    if (s.text.split(/[\s·(/-]+/).some((w) => w.startsWith(q))) return 2;
+    if (s.iata.startsWith(q)) return 3;
+    if (s.text.includes(q)) return 4;
+    return -1;
+  };
+
+  return SEARCH.map((s) => ({ s, sc: score(s) }))
+    .filter((x) => x.sc >= 0)
+    .sort((x, y) => x.sc - y.sc || x.s.rank - y.s.rank)
+    .slice(0, limit)
+    .map((x) => x.s.a);
+}
