@@ -24,6 +24,7 @@ import {
   amadeusBudget,
   seatsBudget,
   duffelBudget,
+  travelpayoutsBudget,
 } from "./cacheLimit.js";
 
 dotenv.config();
@@ -44,6 +45,9 @@ const hasSeats = Boolean(SEATS_KEY);
 const DUFFEL_TOKEN = process.env.DUFFEL_ACCESS_TOKEN;
 const DUFFEL_BASE = "https://api.duffel.com";
 const hasDuffel = Boolean(DUFFEL_TOKEN);
+
+const TP_TOKEN = process.env.TRAVELPAYOUTS_TOKEN;
+const hasTravelpayouts = Boolean(TP_TOKEN);
 
 const app = express();
 app.set("trust proxy", "loopback");
@@ -124,6 +128,7 @@ app.get("/api/health", (_req, res) => {
     amadeus: hasCreds,
     seats: hasSeats,
     duffel: hasDuffel,
+    travelpayouts: hasTravelpayouts,
     env: ENV,
     cache: cacheStats(),
     budget: {
@@ -371,6 +376,77 @@ app.post("/api/duffel-offers", async (req, res) => {
 
     const payload = { offers, currency: offers[0]?.currency ?? null };
     cacheSet(key, payload, CONFIG.duffelTtlMs);
+    res.json(payload);
+  } catch (err) {
+    res.json({ offers: null, reason: `erro-${String(err?.message ?? err)}` });
+  }
+});
+
+// Travelpayouts (Aviasales) — preços reais em cache, achados em buscas recentes
+// de outros usuários. Data exata costuma vir vazia; aí cai para o mês inteiro.
+async function tpPrices({ origin, destination, departure, returnDate, oneWay }) {
+  const q = new URLSearchParams({
+    origin,
+    destination,
+    departure_at: departure,
+    ...(returnDate && { return_at: returnDate }),
+    one_way: String(oneWay),
+    sorting: "price",
+    direct: "false",
+    currency: "brl",
+    limit: "12",
+    page: "1",
+    token: TP_TOKEN,
+  });
+  const r = await fetch(`https://api.travelpayouts.com/aviasales/v3/prices_for_dates?${q}`);
+  if (!r.ok) throw new Error(`travelpayouts-${r.status}`);
+  const body = await r.json();
+  return body.data ?? [];
+}
+
+app.get("/api/prices", async (req, res) => {
+  if (!hasTravelpayouts) return res.json({ offers: null, reason: "sem-credenciais" });
+
+  const { origin, destination, departure, returnDate } = req.query;
+  const iata = /^[A-Z]{3}$/;
+  const day = /^\d{4}-\d{2}-\d{2}$/;
+  if (!iata.test(origin) || !iata.test(destination) || !day.test(departure) || (returnDate && !day.test(returnDate))) {
+    return res.status(400).json({ offers: null, reason: "parametros-invalidos" });
+  }
+
+  const params = { origin, destination, departure, returnDate };
+  const key = cacheKey("tp", params);
+  const g = await pregate(req, res, { emptyKey: "offers", key, budget: travelpayoutsBudget });
+  if (!g.proceed) return;
+
+  try {
+    const oneWay = !returnDate;
+    const [exactRaw, monthRaw] = await Promise.all([
+      tpPrices({ origin, destination, departure, returnDate, oneWay }),
+      tpPrices({ origin, destination, departure: departure.slice(0, 7), returnDate: returnDate?.slice(0, 7), oneWay }),
+    ]);
+    const toOffer = (d) => ({
+      price: d.price,
+      airline: d.airline,
+      flightNumber: d.flight_number,
+      seller: d.gate,
+      originAirport: d.origin_airport,
+      destinationAirport: d.destination_airport,
+      departureAt: d.departure_at,
+      returnAt: d.return_at ?? null,
+      stops: d.transfers,
+      returnStops: d.return_transfers,
+      durationTo: d.duration_to,
+      durationBack: d.duration_back,
+      url: `https://www.aviasales.com${d.link}`,
+    });
+
+    const exact = exactRaw.map(toOffer);
+    const seen = new Set(exact.map((o) => o.url));
+    const otherDates = monthRaw.map(toOffer).filter((o) => !seen.has(o.url));
+
+    const payload = { exact, otherDates, currency: "BRL" };
+    cacheSet(key, payload, CONFIG.offersTtlMs);
     res.json(payload);
   } catch (err) {
     res.json({ offers: null, reason: `erro-${String(err?.message ?? err)}` });

@@ -206,7 +206,7 @@ body:has(.app.dark) {
 /* Bento grid — layout centralizado */
 .bento {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
   padding: 80px 60px 60px;
   align-content: start;
@@ -1062,7 +1062,7 @@ td.cell .star {
     background-attachment: scroll;
   }
   .bento {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 20px;
     padding: 72px 20px 40px;
     max-width: 100%;
@@ -1103,7 +1103,9 @@ td.cell .star {
   .bento {
     padding: 72px 16px 32px;
   }
-  .tile-search {
+  .tile-search,
+  .bento .tile-prices,
+  .tile-results {
     width: auto;
     justify-self: stretch;
   }
@@ -1179,4 +1181,37 @@ td.cell .star {
 }
 .site-group .site-list {
   padding-bottom: 14px;
+}
+
+/* ------------------------------------------------------------- cards de preço */
+.tile-prices {
+  grid-column: 1 / -1;
+  width: 420px;
+  max-width: 100%;
+  justify-self: center;
+  padding: 20px;
+  overflow: visible;
+}
+.prices-subtitle {
+  margin: 4px 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.prices-subtitle + .fare-list {
+  margin-bottom: 12px;
+}
+.airline-name {
+  font-size: 14px;
+  font-weight: 700;
+}
+.fare-card .best-badge {
+  margin-left: auto;
+}
+.prices-note {
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+.app.dark .fare-card {
+  color: var(--text);
 }

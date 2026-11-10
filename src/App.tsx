@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AirportSelect } from "./components/AirportSelect";
+import { PriceCards } from "./components/PriceCards";
 import { buildLinkGroups, type Cabin, type Trip } from "./lib/flightLinks";
 
 function isoInDays(days: number) {
@@ -87,14 +88,20 @@ export default function App() {
           </div>
         </section>
 
-        <section className="tile tile-results" ref={resultsRef}>
+        {trip && (
+          <section className="tile tile-prices" ref={resultsRef}>
+            <PriceCards trip={trip} />
+          </section>
+        )}
+
+        <section className="tile tile-results">
           {trip ? (
             <>
               <h2 className="section">
                 {trip.origin} → {trip.destination}
               </h2>
               <p className="muted" style={{ margin: "0 0 14px" }}>
-                Abra cada site e compare — os preços mudam entre eles.
+                Quer comparar mais? Abra a mesma busca em cada site.
               </p>
               {groups.map((g, i) => (
                 <details key={g.title} className="site-group" open={i === 0}>

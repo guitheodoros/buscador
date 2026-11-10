@@ -101,6 +101,7 @@ export function makeBudget(maxPerMin) {
 export const amadeusBudget = makeBudget(CONFIG.amadeusPerMin);
 export const seatsBudget = makeBudget(CONFIG.seatsPerMin);
 export const duffelBudget = makeBudget(CONFIG.duffelPerMin);
+export const travelpayoutsBudget = makeBudget(num(process.env.TRAVELPAYOUTS_MAX_PER_MIN, 60));
 
 // Limpeza periodica dos mapas de IP para nao vazar memoria.
 setInterval(() => {
